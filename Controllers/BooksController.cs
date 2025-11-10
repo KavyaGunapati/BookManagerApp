@@ -62,12 +62,24 @@ namespace BookManagerApp.Controllers
             }
             return View(book);
         }
-      
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (book == null)
+            {
+                return NotFound("Book not found");
+            }
+            return View(book);
+
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Book book)
+        public async Task<IActionResult> DeleteConfirm(int id)
         {
-            var bookExist = await _context.Books.FindAsync(book.Id);
+            var book = await _context.Books.FindAsync(id);
             if (book == null)
             {
                 return NotFound("Book not found");
