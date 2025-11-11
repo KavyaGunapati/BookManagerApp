@@ -1,27 +1,30 @@
-﻿@*
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
 }
-@model List<BookManagerApp.Models.Book>
+@model IPagedList<BookManagerApp.Models.Book>
 
 @{
     ViewData["Title"] = "Book List";
+    var pageNumber = Model.PageNumber; // Fix: define pageNumber from Model
 }
 
 <h1>Book List</h1>
 <form method="get" asp-action="List">
     <input type="text" placeholder="Search by Title or Name" name="SearchTerm"  />
     <button type="submit" class="btn btn-primary">Search</button>
-
 </form>
 <p>
     Sort By: 
-    <a asp-action="List" asp-route-sortOrder="title_desc">Title ↓</a>|
+    <a asp-action="List" asp-route-sortOrder="title_desc">Title ↓</a> |
     <a asp-action="List" asp-route-sortOrder="author_asc">Author ↑</a> |
-    <a asp-action="List" asp-route-sortOrder="price_desc">Price ↓</a> |
+    <a asp-action="List" asp-route-sortOrder="price_desc">Price ↓</a> 
 
 </p>
+<a asp-action="Create" class="btn btn-primary">Create</a>
 <table class="table">
     <thead>
 
@@ -45,12 +48,16 @@
                <button asp-action="Edit" asp-route-id="@book.Id" class="btn btn-outline-primary">
                    Edit
                </button>
-                    <a asp-action="Delete" asp-controller="Books" asp-route-id="@book.Id" class="btn btn-outline-danger">
-                        Delete
-    </a>
+                   <a asp-action="Delete" asp-controller="Books" asp-route-id="@book.Id" class="btn btn-outline-danger">
+                       Delete
+                   </a>
             </td>
             </tr>
         }
     </tbody>
 
 </table>
+
+<div>
+    @Html.PagedListPager(Model, page => Url.Action("List", new { page, sortOrder = ViewBag.CurrentSort, SearchTerm = ViewBag.CurrentFilter }))
+</div>
