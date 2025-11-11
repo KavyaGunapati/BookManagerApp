@@ -30,14 +30,32 @@ namespace BookManagerApp.Controllers
             return View(book);
         }
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string sortOrder,string SearchTerm)
         {
             var books =await _context.Books.ToListAsync();
             if(books == null)
             {
                 return NotFound("No book found");
             }
-            return View( books);
+            if(!string.IsNullOrEmpty(SearchTerm))
+            {
+                books = books.Where(b => b.Title.Contains(SearchTerm,StringComparison.OrdinalIgnoreCase)||b.Author.Contains(SearchTerm,StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (sortOrder == "title_desc")
+            {
+                books = books.OrderByDescending(b => b.Title).ToList();
+            }else if(sortOrder == "author_asc")
+            {
+                books=books.OrderBy(b => b.Author).ToList();
+            }else if (sortOrder == "price_desc")
+            {
+                books = books.OrderByDescending(b => b.Price).ToList();
+            }
+            else
+            {
+                books = books.OrderBy(b => b.Title).ToList();
+            }
+                return View(books);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

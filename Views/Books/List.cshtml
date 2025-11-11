@@ -10,6 +10,18 @@
 }
 
 <h1>Book List</h1>
+<form method="get" asp-action="List">
+    <input type="text" placeholder="Search by Title or Name" name="SearchTerm"  />
+    <button type="submit" class="btn btn-primary">Search</button>
+
+</form>
+<p>
+    Sort By: 
+    <a asp-action="List" asp-route-sortOrder="title_desc">Title ↓</a>|
+    <a asp-action="List" asp-route-sortOrder="author_asc">Author ↑</a> |
+    <a asp-action="List" asp-route-sortOrder="price_desc">Price ↓</a> |
+
+</p>
 <table class="table">
     <thead>
 
