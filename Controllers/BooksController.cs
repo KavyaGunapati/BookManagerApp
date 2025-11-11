@@ -31,37 +31,55 @@ namespace BookManagerApp.Controllers
             return View(book);
         }
         [HttpGet]
-        public async Task<IActionResult> List(string sortOrder, string SearchTerm, int? page)
+        public async Task<IActionResult> List(string SortOrder="", string SearchTerm="", int PageNumber=1)
         {
-            var books = await _context.Books.ToListAsync();
-            if (books == null)
-            {
-                return NotFound("No book found");
-            }
+            var query = _context.Books.AsQueryable();
             if (!string.IsNullOrEmpty(SearchTerm))
             {
-                books = books.Where(b => b.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || b.Author.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                query = query.Where(b => b.Title.ToLower().Contains(SearchTerm.ToLower() )|| b.Author.ToLower().Contains(SearchTerm.ToLower()));
             }
-            if (sortOrder == "title_desc")
+            query = SortOrder switch
             {
-                books = books.OrderByDescending(b => b.Title).ToList();
-            }
-            else if (sortOrder == "author_asc")
-            {
-                books = books.OrderBy(b => b.Author).ToList();
-            }
-            else if (sortOrder == "price_desc")
-            {
-                books = books.OrderByDescending(b => b.Price).ToList();
-            }
-            else
-            {
-                books = books.OrderBy(b => b.Title).ToList();
-            }
+                "title_desc" => query.OrderByDescending(b => b.Title),
+                "author_asc" => query.OrderBy(b => b.Author),
+                "price_desc" => query.OrderByDescending(b => b.Price),
+                _ => query.OrderBy(b => b.Title),
+            };
             int pageSize = 5;
-            int pageNumber = (page ?? 1);
+            var Books = await query.Skip((PageNumber - 1) * (pageSize)).Take(pageSize).ToListAsync();
+            ViewBag.PageNumber = PageNumber; 
+            ViewBag.SortOrder = SortOrder;
+            ViewBag.Searchterm = SearchTerm;
+            return View(Books);
+            //var books = await _context.Books.ToListAsync();
+            //if (books == null)
+            //{
+            //    return NotFound("No book found");
+            //}
+            //if (!string.IsNullOrEmpty(SearchTerm))
+            //{
+            //    books = books.Where(b => b.Title.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || b.Author.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+            //}
+            //if (sortOrder == "title_desc")
+            //{
+            //    books = books.OrderByDescending(b => b.Title).ToList();
+            //}
+            //else if (sortOrder == "author_asc")
+            //{
+            //    books = books.OrderBy(b => b.Author).ToList();
+            //}
+            //else if (sortOrder == "price_desc")
+            //{
+            //    books = books.OrderByDescending(b => b.Price).ToList();
+            //}
+            //else
+            //{
+            //    books = books.OrderBy(b => b.Title).ToList();
+            //}
+            //int pageSize = 5;
+            //int pageNumber = (page ?? 1);
 
-            return View(books.ToPagedList(pageNumber, pageSize));
+            //return View(books.ToPagedList(pageNumber, pageSize));
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
